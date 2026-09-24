@@ -1,5 +1,4 @@
-# MoStar Sovereign Signal Observatory — VPS edition
-
+# MoStar Sovereign Signal Observatory
 Portable React dashboard, Python API, independent collector, SQLite evidence ledger and optional Caddy HTTPS gateway. No ChatGPT runtime is needed after deployment.
 
 ## Delivery status
