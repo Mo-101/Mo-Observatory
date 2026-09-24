@@ -1,0 +1,43 @@
+name: mostar-observatory
+services:
+  app:
+    image: mostar-observatory:local
+    build: .
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - observations:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8080/healthz', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  collector:
+    image: mostar-observatory:local
+    command: ["python", "service.py", "collect"]
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - observations:/data
+    depends_on:
+      app:
+        condition: service_healthy
+  proxy:
+    image: caddy:2-alpine
+    profiles: ["public"]
+    restart: unless-stopped
+    env_file: .env
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+volumes:
+  observations:
+  caddy_data:
+  caddy_config:
