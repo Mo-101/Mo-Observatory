@@ -3,7 +3,8 @@ services:
   app:
     image: mostar-observatory:local
     build: .
-    env_file: .env
+    environment:
+      STALE_SECONDS: ${STALE_SECONDS:-1800}
     restart: unless-stopped
     ports:
       - "127.0.0.1:8080:8080"
@@ -17,7 +18,10 @@ services:
   collector:
     image: mostar-observatory:local
     command: ["python", "service.py", "collect"]
-    env_file: .env
+    environment:
+      SOURCE_URLS: ${SOURCE_URLS:-}
+      POLL_SECONDS: ${POLL_SECONDS:-60}
+      STALE_SECONDS: ${STALE_SECONDS:-1800}
     restart: unless-stopped
     volumes:
       - observations:/data
@@ -28,7 +32,10 @@ services:
     image: caddy:2-alpine
     profiles: ["public"]
     restart: unless-stopped
-    env_file: .env
+    environment:
+      DOMAIN: ${DOMAIN:-}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-observatory}
+      BASIC_AUTH_HASH: ${BASIC_AUTH_HASH:-}
     ports: ["80:80", "443:443"]
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro

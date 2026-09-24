@@ -37,7 +37,10 @@ sudo chown "$USER" /opt/mostar
 git clone YOUR_GIT_REMOTE /opt/mostar/observatory
 cd /opt/mostar/observatory
 cp .env.example .env
+chmod 600 .env
 nano .env
+
+docker compose config --quiet
 docker compose up -d --build
 docker compose ps
 docker compose logs --tail=50 collector
@@ -134,3 +137,7 @@ cd ..
 Open http://localhost:8080. In another terminal, export `SOURCE_URLS` and start `.venv/bin/python backend/service.py collect`. For frontend development, run `npm run dev` inside `frontend`; its API proxy targets port 8080.
 
 Tests use isolated temporary fixtures and never seed the production database. See `VERIFICATION.md` for checks actually performed during packaging and remaining deployment checks.
+
+## Runtime credential isolation
+
+Compose passes only named Observatory settings to each service. Keep Binance credentials in the separate Scaffs execution service. Never put trading keys in this repository or its Observatory environment files. Git and Docker ignore environment files; only the placeholder .env.example belongs in Git. Avoid sharing rendered Compose configuration because it can contain runtime values.
